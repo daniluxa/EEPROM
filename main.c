@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "string.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -43,7 +44,8 @@
 I2C_HandleTypeDef hi2c1;
 
 /* USER CODE BEGIN PV */
-uint8_t xBuffer[2] = {'M', 'A'};
+uint8_t dataWrite[] = "hello world";
+uint8_t dataRead[sizeof(dataWrite)];
 
 #define I2C1_DEVICE_ADDRESS      0x50   /* A0 = A1 = A2 = 0 */
 #define MEMORY_ADDRESS           0x80
@@ -100,30 +102,26 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    
-                xBuffer[0] = 'M'; //0x4D
-                xBuffer[1] = 'A'; //0x4D
+   
  
-                HAL_StatusTypeDef aaa = HAL_I2C_Mem_Write(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), 0x80, 1, xBuffer, 2, 10);   //write to memory address 0x40
+                HAL_StatusTypeDef aaa = HAL_I2C_Mem_Write(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), MEMORY_ADDRESS, 1, dataWrite, sizeof(dataWrite), 10);   //write to memory address 0x40
  
                 HAL_Delay(10); //memory write delay
  
-                xBuffer[0] = 0x00; //clear buffer
-                xBuffer[1] = 0x00; //clear buffer
- 
-                //HAL_Delay(3000); //system wait
+               // memset(dataWrite, 0, sizeof(dataWrite)); //clear buffer
                 
-                HAL_I2C_Mem_Read(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), 0x80, 1 , xBuffer, 2, 10);
+                HAL_I2C_Mem_Read(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), MEMORY_ADDRESS, 1 , dataRead, sizeof(dataRead), 10);
                 
-                if (xBuffer[0] == 0x4D) // if xBuffer[0] = 'M'
+                if (memcmp(dataWrite, dataRead, (sizeof(dataWrite))) == 0)
                 {
+                     HAL_Delay(100);
                      HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET); //GREEN LED ON
-                     HAL_Delay(2500);
                 }    
                 
                 else
                 {
-                     HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET); // BLUE LED OFF
+                     HAL_Delay(100);
+                     HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET); // BLUE LED ON
                 }
     /* USER CODE BEGIN 3 */
   }

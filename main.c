@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "string.h"
+#include "EEPROM.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +32,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -43,10 +43,8 @@
 I2C_HandleTypeDef hi2c1;
 
 /* USER CODE BEGIN PV */
-uint8_t xBuffer[2] = {'M', 'A'};
-
-#define I2C1_DEVICE_ADDRESS      0x50   /* A0 = A1 = A2 = 0 */
-#define MEMORY_ADDRESS           0x80
+uint8_t dataRead[128];
+uint8_t dataWrite[100];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,7 +57,14 @@ static void MX_I2C1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#define DEV_ADDR 0xa0
+uint8_t dataw1[] = "hello world from EEPROM";
+uint8_t dataw2[] = "This is the second string from EEPROM";
+float dataw3 = 1234.5678;
 
+uint8_t datar1[100];
+uint8_t datar2[100];
+float datar3;
 /* USER CODE END 0 */
 
 /**
@@ -92,7 +97,20 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  
+  for (int i=0; i<512; i++)
+  {
+	  EEPROM_PageErase(i);
+  }
+  
+  EEPROM_Write(3, 0, dataw1, strlen((char *)dataw1));
+  EEPROM_Write(5, 20, dataw2, strlen((char *)dataw2));
+ // EEPROM_Write_NUM (6, 0, dataw3);
+  
+  EEPROM_Read(3, 0, datar1, 50);
+  EEPROM_Read(5, 15, datar2, 50);
 
+  //datar3 = EEPROM_Read_NUM (6, 0);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -100,31 +118,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    
-                xBuffer[0] = 'M'; //0x4D
-                xBuffer[1] = 'A'; //0x4D
- 
-                HAL_StatusTypeDef aaa = HAL_I2C_Mem_Write(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), 0x80, 1, xBuffer, 2, 10);   //write to memory address 0x40
- 
-                HAL_Delay(10); //memory write delay
- 
-                xBuffer[0] = 0x00; //clear buffer
-                xBuffer[1] = 0x00; //clear buffer
- 
-                //HAL_Delay(3000); //system wait
-                
-                HAL_I2C_Mem_Read(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), 0x80, 1 , xBuffer, 2, 10);
-                
-                if (xBuffer[0] == 0x4D) // if xBuffer[0] = 'M'
-                {
-                     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET); //GREEN LED ON
-                     HAL_Delay(2500);
-                }    
-                
-                else
-                {
-                     HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET); // BLUE LED OFF
-                }
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -210,24 +204,12 @@ static void MX_I2C1_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, LED_Pin|LED_B_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pins : LED_Pin LED_B_Pin */
-  GPIO_InitStruct.Pin = LED_Pin|LED_B_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
 }
 

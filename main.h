@@ -28,6 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f2xx_hal.h"
+#include "eeprom_lib.h"  
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */

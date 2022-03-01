@@ -44,11 +44,15 @@
 I2C_HandleTypeDef hi2c1;
 
 /* USER CODE BEGIN PV */
-uint8_t dataWrite[] = "hello world";
+uint8_t dataWrite[] = "Arcu arcu id mollis tortor, sed vitae velit velit habitasse hac molestie interdum risus mattis sed odio. Nulla odio. Cursus platea est. Dic";
+//uint8_t dataWrite[] = "When the days are cold, and the cards are fold, and the saints we see, are all made of gold";
+//uint8_t dataWrite[] = "the first word";
+//uint8_t dataWrite1[] = "1111111";
 uint8_t dataRead[sizeof(dataWrite)];
+//uint8_t dataRead1[sizeof(dataWrite1)];
 
-#define I2C1_DEVICE_ADDRESS      0x50   /* A0 = A1 = A2 = 0 */
-#define MEMORY_ADDRESS           0x80
+#define I2C1_DEVICE_ADDRESS      0x50   // 1010 _ A0 = A1 = A2 = 0 
+#define MEMORY_ADDRESS           0
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -86,9 +90,9 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+/* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+/* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
@@ -102,17 +106,23 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+    
+                Eeprom_Write(&hi2c1, I2C1_DEVICE_ADDRESS << 1, MEMORY_ADDRESS, dataWrite, sizeof(dataWrite));
+                Eeprom_Read(&hi2c1, I2C1_DEVICE_ADDRESS << 1, MEMORY_ADDRESS, dataRead, sizeof(dataRead));
    
- 
-                HAL_StatusTypeDef aaa = HAL_I2C_Mem_Write(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), MEMORY_ADDRESS, 1, dataWrite, sizeof(dataWrite), 10);   //write to memory address 0x40
+                /*HAL_StatusTypeDef aaa = HAL_I2C_Mem_Write(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), 0x00, 1, dataWrite, sizeof(dataWrite), 1000);   //write to memory address 0x40
  
                 HAL_Delay(10); //memory write delay
+                
+                aaa = HAL_I2C_Mem_Read(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), 0x00, 1 , dataRead, sizeof(dataRead), 10);
+                
+                HAL_StatusTypeDef aa = HAL_I2C_Mem_Write(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), 0x10, 1, dataWrite1, sizeof(dataWrite1), 10);   //write to memory address 0x40
  
-               // memset(dataWrite, 0, sizeof(dataWrite)); //clear buffer
+                HAL_Delay(10); //memory write delay
                 
-                HAL_I2C_Mem_Read(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), MEMORY_ADDRESS, 1 , dataRead, sizeof(dataRead), 10);
+                HAL_I2C_Mem_Read(&hi2c1, (I2C1_DEVICE_ADDRESS<<1), 0x10, 1 , dataRead1, sizeof(dataRead1), 10);   */
                 
-                if (memcmp(dataWrite, dataRead, (sizeof(dataWrite))) == 0)
+               /* if (memcmp(dataWrite, dataRead, (sizeof(dataWrite))) == 0)
                 {
                      HAL_Delay(100);
                      HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET); //GREEN LED ON
@@ -122,7 +132,8 @@ int main(void)
                 {
                      HAL_Delay(100);
                      HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET); // BLUE LED ON
-                }
+                }*/
+    
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
